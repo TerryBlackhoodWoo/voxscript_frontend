@@ -9,7 +9,7 @@ function ProgressBar({ progress, message }) {
     )
 }
 
-function ScriptView({ project, isProcessing, progress, progressMsg }) {
+function ScriptView({ project, isProcessing, progress, progressMsg, logs }) {
     if (!project && !isProcessing) {
         return (
             <main className="script-view empty">
@@ -23,7 +23,18 @@ function ScriptView({ project, isProcessing, progress, progressMsg }) {
 
     return (
         <main className="script-view">
-            {isProcessing && <ProgressBar progress={progress} message={progressMsg} />}
+            {isProcessing && (
+                <>
+                    <ProgressBar progress={progress} message={progressMsg} />
+                    {logs?.length > 0 && (
+                        <div className="log-box">
+                            {logs.map((line, i) => (
+                                <div key={i} className="log-line">{line}</div>
+                            ))}
+                        </div>
+                    )}
+                </>
+            )}
 
             {project && (
                 <>

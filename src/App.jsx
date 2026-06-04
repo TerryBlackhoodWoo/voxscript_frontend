@@ -1,29 +1,48 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import ScriptView from './components/ScriptView'
 import SettingsPanel from './components/SettingsPanel'
 import './App.css'
 
+const API_BASE = 'http://localhost:8765'
+
 function App() {
-  const [projects, setProjects] = useState([
-    { id: 1, title: '젠슨황_AI_로봇_그리고_미래', date: '2025-06-04', lang: 'en' },
-    { id: 2, title: '더_보이즈_시즌5_결말과_현실', date: '2025-06-03', lang: 'ja' },
-  ])
+  const [projects, setProjects] = useState([])
   const [selectedProject, setSelectedProject] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [progressMsg, setProgressMsg] = useState('')
 
-  // 설정 패널 상태
   const [settings, setSettings] = useState({
     sourceUrl: '',
     lang: 'auto',
     format: 'all',
     diarize: false,
-    speaker1: '인터뷰어',
-    speaker2: '인터뷰이',
+    speakers: ['인터뷰어', '인터뷰이'],  // 리스트로 변경
     noSummary: false,
   })
+
+  // 완료된 작업 목록 polling
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/jobs`)
+        const jobs = await res.json()
+        setProjects(jobs.map(job => ({
+          id: job.job_id,
+          title: job.files?.[0]?.replace(/_번역\.txt|_원문번역\.txt|\.xlsx|_병기\.srt|_번역\.srt|_요약\.txt/g, '').replace(/_/g, ' ') || job.job_id,
+          date: new Date().toISOString().slice(0, 10),
+          files: job.files || [],
+          summary: job.summary || '',
+        })))
+      } catch {
+        // FastAPI 꺼져있으면 무시
+      }
+    }
+    fetchJobs()
+    const interval = setInterval(fetchJobs, 3000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleStart = async () => {
     if (!settings.sourceUrl.trim()) return
@@ -31,10 +50,7 @@ function App() {
     setProgress(5)
     setProgressMsg('처리 시작 중...')
 
-    const API_BASE = 'http://localhost:8765'
-
     try {
-      // Step 1: 처리 시작 → job_id 받기
       const res = await fetch(`${API_BASE}/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -43,12 +59,13 @@ function App() {
           language: settings.lang,
           formats: [settings.format],
           use_summary: !settings.noSummary,
+          diarize: settings.diarize,
+          speakers: settings.diarize ? settings.speakers : [],
         }),
       })
       const job = await res.json()
       const jobId = job.job_id
 
-      // Step 2: 진행상태 polling
       const pollInterval = setInterval(async () => {
         try {
           const statusRes = await fetch(`${API_BASE}/status/${jobId}`)

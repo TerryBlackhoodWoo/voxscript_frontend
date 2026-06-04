@@ -12,6 +12,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [progressMsg, setProgressMsg] = useState('')
+  const [logs, setLogs] = useState([])
 
   const [settings, setSettings] = useState({
     sourceUrl: '',
@@ -45,7 +46,7 @@ function App() {
   }, [])
 
   const handleStart = async () => {
-    if (!settings.sourceUrl.trim()) return
+    if (!settings.sourceUrl.trim() || isProcessing) return  // 중복 방지
     setIsProcessing(true)
     setProgress(5)
     setProgressMsg('처리 시작 중...')
@@ -73,6 +74,7 @@ function App() {
 
           setProgress(status.progress ?? 0)
           setProgressMsg(status.step ?? '')
+          if (status.log) setLogs(status.log)
 
           if (status.status === 'done') {
             clearInterval(pollInterval)
@@ -114,6 +116,7 @@ function App() {
         isProcessing={isProcessing}
         progress={progress}
         progressMsg={progressMsg}
+        logs={logs}
       />
       <SettingsPanel
         settings={settings}

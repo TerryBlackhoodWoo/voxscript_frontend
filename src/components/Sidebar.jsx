@@ -15,7 +15,7 @@ function Sidebar({ projects, selectedProject, onSelect }) {
                             onClick={() => onSelect(project)}
                         >
                             <span className="project-title">{project.title.replace(/_/g, ' ')}</span>
-                            <span className="project-meta">{project.date} · {project.lang.toUpperCase()}</span>
+                            <span className="project-meta">{project.date}{project.lang ? ` · ${project.lang.toUpperCase()}` : ''}</span>
                         </li>
                     ))}
                 </ul>

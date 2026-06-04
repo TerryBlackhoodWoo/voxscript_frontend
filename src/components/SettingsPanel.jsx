@@ -19,6 +19,21 @@ const FORMAT_OPTIONS = [
 function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
     const update = (key, value) => onChange({ ...settings, [key]: value })
 
+    const addSpeaker = () => {
+        update('speakers', [...settings.speakers, `화자${settings.speakers.length + 1}`])
+    }
+
+    const removeSpeaker = (idx) => {
+        if (settings.speakers.length <= 1) return
+        update('speakers', settings.speakers.filter((_, i) => i !== idx))
+    }
+
+    const updateSpeaker = (idx, value) => {
+        const next = [...settings.speakers]
+        next[idx] = value
+        update('speakers', next)
+    }
+
     return (
         <aside className="settings-panel">
             <div className="settings-header">
@@ -64,24 +79,36 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
 
                 {settings.diarize && (
                     <div className="speaker-fields">
-                        <div className="field">
-                            <label>화자 1</label>
-                            <input
-                                type="text"
-                                value={settings.speaker1}
-                                onChange={(e) => update('speaker1', e.target.value)}
+                        <div className="speaker-fields-header">
+                            <span className="speaker-label">화자 목록</span>
+                            <button
+                                className="btn-add-speaker"
+                                onClick={addSpeaker}
                                 disabled={isProcessing}
-                            />
+                            >
+                                + 추가
+                            </button>
                         </div>
-                        <div className="field">
-                            <label>화자 2</label>
-                            <input
-                                type="text"
-                                value={settings.speaker2}
-                                onChange={(e) => update('speaker2', e.target.value)}
-                                disabled={isProcessing}
-                            />
-                        </div>
+                        {settings.speakers.map((name, idx) => (
+                            <div key={idx} className="speaker-row">
+                                <span className="speaker-num">{idx + 1}</span>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => updateSpeaker(idx, e.target.value)}
+                                    disabled={isProcessing}
+                                />
+                                {settings.speakers.length > 1 && (
+                                    <button
+                                        className="btn-remove-speaker"
+                                        onClick={() => removeSpeaker(idx)}
+                                        disabled={isProcessing}
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 )}
 
@@ -114,4 +141,4 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
     )
 }
 
-export default SettingsPanel 
+export default SettingsPanel

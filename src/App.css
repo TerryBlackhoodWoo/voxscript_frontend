@@ -478,6 +478,26 @@ body {
   white-space: pre-wrap;
 }
 
+/* 로그 박스 */
+.log-box {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--bg-base);
+}
+
+.log-line {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-family: var(--font-ui);
+}
+
+.log-line:last-child {
+  color: var(--text-primary);
+}
+
 .settings-footer {
   padding: 14px 16px;
   border-top: 1px solid var(--border);

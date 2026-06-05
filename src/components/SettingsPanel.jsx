@@ -19,21 +19,6 @@ const FORMAT_OPTIONS = [
 function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
     const update = (key, value) => onChange({ ...settings, [key]: value })
 
-    const addSpeaker = () => {
-        update('speakers', [...settings.speakers, `화자${settings.speakers.length + 1}`])
-    }
-
-    const removeSpeaker = (idx) => {
-        if (settings.speakers.length <= 1) return
-        update('speakers', settings.speakers.filter((_, i) => i !== idx))
-    }
-
-    const updateSpeaker = (idx, value) => {
-        const next = [...settings.speakers]
-        next[idx] = value
-        update('speakers', next)
-    }
-
     return (
         <aside className="settings-panel">
             <div className="settings-header">
@@ -93,65 +78,9 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
                 </div>
 
                 {settings.diarize && (
-                    <div className="speaker-fields">
-                        {/* 자동/수동 모드 선택 */}
-                        <div className="diarize-mode">
-                            <button
-                                className={`mode-btn ${settings.diarizeMode === 'auto' ? 'active' : ''}`}
-                                onClick={() => update('diarizeMode', 'auto')}
-                                disabled={isProcessing}
-                            >
-                                자동 감지
-                            </button>
-                            <button
-                                className={`mode-btn ${settings.diarizeMode === 'manual' ? 'active' : ''}`}
-                                onClick={() => update('diarizeMode', 'manual')}
-                                disabled={isProcessing}
-                            >
-                                직접 입력
-                            </button>
-                        </div>
-
-                        {/* 수동 모드일 때만 화자 목록 표시 */}
-                        {settings.diarizeMode === 'manual' && (
-                            <>
-                                <div className="speaker-fields-header">
-                                    <span className="speaker-label">화자 목록</span>
-                                    <button
-                                        className="btn-add-speaker"
-                                        onClick={addSpeaker}
-                                        disabled={isProcessing}
-                                    >
-                                        + 추가
-                                    </button>
-                                </div>
-                                {settings.speakers.map((name, idx) => (
-                                    <div key={idx} className="speaker-row">
-                                        <span className="speaker-num">{idx + 1}</span>
-                                        <input
-                                            type="text"
-                                            value={name}
-                                            onChange={(e) => updateSpeaker(idx, e.target.value)}
-                                            disabled={isProcessing}
-                                        />
-                                        {settings.speakers.length > 1 && (
-                                            <button
-                                                className="btn-remove-speaker"
-                                                onClick={() => removeSpeaker(idx)}
-                                                disabled={isProcessing}
-                                            >
-                                                ✕
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
-                            </>
-                        )}
-
-                        {settings.diarizeMode === 'auto' && (
-                            <p className="diarize-hint">Gemini가 대화 패턴을 분석하여 화자를 자동으로 구분합니다</p>
-                        )}
-                    </div>
+                    <p className="diarize-hint">
+                        처리 후 화자 라벨링 화면에서 직접 지정할 수 있습니다
+                    </p>
                 )}
 
                 <div className="field toggle-field">

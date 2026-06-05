@@ -3,7 +3,7 @@ function Sidebar({ projects, selectedProject, onSelect }) {
         <aside className="sidebar">
             <div className="sidebar-header">
                 <h1 className="logo">VOXScript</h1>
-                <span className="version">v0.2</span>
+                <span className="version">v0.3</span>
             </div>
             <div className="sidebar-section">
                 <span className="section-label">프로젝트</span>

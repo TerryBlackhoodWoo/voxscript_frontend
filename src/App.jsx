@@ -2,19 +2,30 @@ import { useState, useEffect, useRef } from 'react'
 import Sidebar from './components/Sidebar'
 import ScriptView from './components/ScriptView'
 import SettingsPanel from './components/SettingsPanel'
+import LabelingView from './components/LabelingView'
+import SavePanel from './components/SavePanel'
 import './App.css'
 
 const API_BASE = 'http://localhost:8765'
 
+// 단계 구분
+const STAGE_PROCESSING = ['downloading', 'transcribing', 'cleaning', 'diarizing', 'translating']
+const STAGE_LABELING = 'labeling'
+const STAGE_SAVING = 'saving'
+const STAGE_DONE = 'done'
+const STAGE_ERROR = 'error'
+
 function App() {
   const [projects, setProjects] = useState([])
   const [selectedProject, setSelectedProject] = useState(null)
+  const [activeProject, setActiveProject] = useState(null)  // 현재 처리 중인 프로젝트
   const [isProcessing, setIsProcessing] = useState(false)
   const [progress, setProgress] = useState(0)
   const [progressMsg, setProgressMsg] = useState('')
   const [logs, setLogs] = useState([])
   const [elapsedTime, setElapsedTime] = useState('')
-  const startTimeRef = useRef(null)  // ← useRef로 변경
+  const startTimeRef = useRef(null)
+  const pollRef = useRef(null)
 
   const [settings, setSettings] = useState({
     sourceUrl: '',
@@ -26,26 +37,21 @@ function App() {
     noSummary: false,
   })
 
+  // 프로젝트 목록 polling
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchProjects = async () => {
       try {
-        const res = await fetch(`${API_BASE}/jobs`)
-        const jobs = await res.json()
-        setProjects(jobs.map(job => ({
-          id: job.job_id,
-          title: job.files?.[0]?.replace(/_번역\.txt|_원문번역\.txt|\.xlsx|_병기\.srt|_번역\.srt|_요약\.txt/g, '').replace(/_/g, ' ') || job.job_id,
-          date: new Date().toISOString().slice(0, 10),
-          files: job.files || [],
-          summary: job.summary || '',
-        })))
+        const res = await fetch(`${API_BASE}/projects`)
+        const data = await res.json()
+        setProjects(data)
       } catch { }
     }
-    fetchJobs()
-    const interval = setInterval(fetchJobs, 3000)
+    fetchProjects()
+    const interval = setInterval(fetchProjects, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  // 처리 중 경과시간 타이머
+  // 경과시간 타이머
   useEffect(() => {
     if (!isProcessing) return
     const timer = setInterval(() => {
@@ -58,6 +64,55 @@ function App() {
     return () => clearInterval(timer)
   }, [isProcessing])
 
+  // 상태 polling
+  const startPolling = (projectId) => {
+    if (pollRef.current) clearInterval(pollRef.current)
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/status/${projectId}`)
+        const status = await res.json()
+
+        setProgress(status.stage_progress ?? 0)
+        setProgressMsg(status.stage ?? '')
+        if (status.log) setLogs(status.log)
+
+        // 단계별 처리
+        if (STAGE_PROCESSING.includes(status.stage)) {
+          setIsProcessing(true)
+          setActiveProject(status)
+        } else if (status.stage === STAGE_LABELING) {
+          // 라벨링 대기 → polling 멈추고 UI 전환
+          clearInterval(pollRef.current)
+          setIsProcessing(false)
+          setActiveProject(status)
+        } else if (status.stage === STAGE_SAVING) {
+          clearInterval(pollRef.current)
+          setIsProcessing(false)
+          setActiveProject(status)
+        } else if (status.stage === STAGE_DONE) {
+          clearInterval(pollRef.current)
+          setIsProcessing(false)
+          setProgress(100)
+          if (startTimeRef.current) {
+            const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+            const m = Math.floor(elapsed / 60)
+            const s = elapsed % 60
+            setElapsedTime(`${m}m ${s}s`)
+          }
+          setActiveProject(status)
+        } else if (status.stage === STAGE_ERROR) {
+          clearInterval(pollRef.current)
+          setIsProcessing(false)
+          alert(`오류: ${status.error_msg}`)
+        }
+      } catch {
+        clearInterval(pollRef.current)
+        setIsProcessing(false)
+      }
+    }, 1000)
+  }
+
+  // 처리 시작
   const handleStart = async () => {
     if (!settings.sourceUrl.trim() || isProcessing) return
     setIsProcessing(true)
@@ -65,77 +120,123 @@ function App() {
     setProgressMsg('처리 시작 중...')
     setElapsedTime('')
     setLogs([])
-    startTimeRef.current = Date.now()  // ← ref에 저장
+    setActiveProject(null)
+    startTimeRef.current = Date.now()
 
     try {
-      const res = await fetch(`${API_BASE}/process`, {
+      const res = await fetch(`${API_BASE}/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           source: settings.sourceUrl,
-          language: settings.lang,
-          formats: [settings.format],
+          lang: settings.lang,
+          format: settings.format,
           use_summary: !settings.noSummary,
-          diarize: settings.diarize,
-          speakers: settings.diarize && settings.diarizeMode === 'manual' ? settings.speakers : [],
         }),
       })
-      const job = await res.json()
-      const jobId = job.job_id
-
-      const pollInterval = setInterval(async () => {
-        try {
-          const statusRes = await fetch(`${API_BASE}/status/${jobId}`)
-          const status = await statusRes.json()
-
-          setProgress(status.progress ?? 0)
-          setProgressMsg(status.step ?? '')
-          if (status.log) setLogs(status.log)
-
-          if (status.status === 'done') {
-            clearInterval(pollInterval)
-            setIsProcessing(false)
-            setProgress(100)
-            setProgressMsg('완료!')
-            // ref로 정확한 소요시간 계산
-            if (startTimeRef.current) {
-              const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
-              const m = Math.floor(elapsed / 60)
-              const s = elapsed % 60
-              setElapsedTime(`${m}m ${s}s`)
-            }
-          } else if (status.status === 'error') {
-            clearInterval(pollInterval)
-            setIsProcessing(false)
-            alert(`오류: ${status.error}`)
-          }
-        } catch {
-          clearInterval(pollInterval)
-          setIsProcessing(false)
-        }
-      }, 1000)
-
+      const project = await res.json()
+      setActiveProject(project)
+      startPolling(project.project_id)
     } catch (e) {
       setIsProcessing(false)
-      alert(`연결 실패: ${e.message}\nFastAPI 서버가 실행 중인지 확인해주세요.`)
+      alert(`연결 실패: ${e.message}`)
+    }
+  }
+
+  // 라벨링 완료 → resume
+  const handleLabelingSubmit = async (labeledSegments, speakers) => {
+    if (!activeProject) return
+    setIsProcessing(true)
+    startPolling(activeProject.project_id)
+
+    try {
+      await fetch(`${API_BASE}/resume/${activeProject.project_id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ labeled_segments: labeledSegments }),
+      })
+    } catch (e) {
+      setIsProcessing(false)
+      alert(`오류: ${e.message}`)
+    }
+  }
+
+  // 라벨링 스킵
+  const handleLabelingSkip = async () => {
+    await handleLabelingSubmit([], [])
+  }
+
+  // 저장
+  const handleSave = async (exportDir, formats) => {
+    if (!activeProject) return
+    setIsProcessing(true)
+    startPolling(activeProject.project_id)
+
+    try {
+      await fetch(`${API_BASE}/save/${activeProject.project_id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ export_dir: exportDir, formats }),
+      })
+    } catch (e) {
+      setIsProcessing(false)
+      alert(`오류: ${e.message}`)
+    }
+  }
+
+  // 프로젝트 이어하기
+  const handleProjectSelect = async (project) => {
+    setSelectedProject(project)
+    try {
+      const res = await fetch(`${API_BASE}/load/${project.project_id}`)
+      const data = await res.json()
+      setActiveProject(data)
+      setLogs(data.log || [])
+
+      // 미완성 프로젝트면 polling 재개
+      if (STAGE_PROCESSING.includes(data.stage)) {
+        setIsProcessing(true)
+        startPolling(data.project_id)
+      }
+    } catch (e) {
+      alert(`프로젝트 로드 실패: ${e.message}`)
     }
   }
 
   const handleStop = () => {
+    if (pollRef.current) clearInterval(pollRef.current)
     setIsProcessing(false)
     setProgress(0)
     setProgressMsg('')
-    setElapsedTime('')
     startTimeRef.current = null
   }
 
-  return (
-    <div className="app-layout">
-      <Sidebar
-        projects={projects}
-        selectedProject={selectedProject}
-        onSelect={setSelectedProject}
-      />
+  // 현재 표시할 중앙 컨텐츠 결정
+  const renderCenter = () => {
+    if (activeProject?.stage === STAGE_LABELING) {
+      return (
+        <LabelingView
+          project={activeProject}
+          onSubmit={handleLabelingSubmit}
+          onSkip={handleLabelingSkip}
+        />
+      )
+    }
+    if (activeProject?.stage === STAGE_SAVING) {
+      return (
+        <SavePanel
+          project={activeProject}
+          onSave={handleSave}
+          onHome={() => {
+            setActiveProject(null)
+            setSelectedProject(null)
+            setLogs([])
+            setElapsedTime('')
+          }}
+        />
+      )
+    }
+    return (
       <ScriptView
         project={selectedProject}
         isProcessing={isProcessing}
@@ -144,12 +245,24 @@ function App() {
         logs={logs}
         elapsedTime={elapsedTime}
       />
+    )
+  }
+
+  return (
+    <div className="app-layout">
+      <Sidebar
+        projects={projects}
+        selectedProject={selectedProject}
+        onSelect={handleProjectSelect}
+      />
+      {renderCenter()}
       <SettingsPanel
         settings={settings}
         onChange={setSettings}
         onStart={handleStart}
         onStop={handleStop}
         isProcessing={isProcessing}
+        currentStage={activeProject?.stage}
       />
     </div>
   )

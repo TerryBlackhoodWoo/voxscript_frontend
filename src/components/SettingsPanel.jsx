@@ -43,13 +43,28 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
             <div className="settings-body">
                 <div className="field">
                     <label>소스 URL / 경로</label>
-                    <input
-                        type="text"
-                        placeholder="YouTube URL 또는 Google Drive 링크"
-                        value={settings.sourceUrl}
-                        onChange={(e) => update('sourceUrl', e.target.value)}
-                        disabled={isProcessing}
-                    />
+                    <div className="source-input-row">
+                        <input
+                            type="text"
+                            placeholder="YouTube URL / Google Drive 링크 / 로컬 경로"
+                            value={settings.sourceUrl}
+                            onChange={(e) => update('sourceUrl', e.target.value)}
+                            disabled={isProcessing}
+                        />
+                        <button
+                            className="btn-file-select"
+                            onClick={async () => {
+                                if (window.voxscript?.selectFile) {
+                                    const path = await window.voxscript.selectFile()
+                                    if (path) update('sourceUrl', path)
+                                }
+                            }}
+                            disabled={isProcessing}
+                            title="로컬 파일 선택"
+                        >
+                            📁
+                        </button>
+                    </div>
                 </div>
 
                 <div className="field">
@@ -79,36 +94,63 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
 
                 {settings.diarize && (
                     <div className="speaker-fields">
-                        <div className="speaker-fields-header">
-                            <span className="speaker-label">화자 목록</span>
+                        {/* 자동/수동 모드 선택 */}
+                        <div className="diarize-mode">
                             <button
-                                className="btn-add-speaker"
-                                onClick={addSpeaker}
+                                className={`mode-btn ${settings.diarizeMode === 'auto' ? 'active' : ''}`}
+                                onClick={() => update('diarizeMode', 'auto')}
                                 disabled={isProcessing}
                             >
-                                + 추가
+                                자동 감지
+                            </button>
+                            <button
+                                className={`mode-btn ${settings.diarizeMode === 'manual' ? 'active' : ''}`}
+                                onClick={() => update('diarizeMode', 'manual')}
+                                disabled={isProcessing}
+                            >
+                                직접 입력
                             </button>
                         </div>
-                        {settings.speakers.map((name, idx) => (
-                            <div key={idx} className="speaker-row">
-                                <span className="speaker-num">{idx + 1}</span>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => updateSpeaker(idx, e.target.value)}
-                                    disabled={isProcessing}
-                                />
-                                {settings.speakers.length > 1 && (
+
+                        {/* 수동 모드일 때만 화자 목록 표시 */}
+                        {settings.diarizeMode === 'manual' && (
+                            <>
+                                <div className="speaker-fields-header">
+                                    <span className="speaker-label">화자 목록</span>
                                     <button
-                                        className="btn-remove-speaker"
-                                        onClick={() => removeSpeaker(idx)}
+                                        className="btn-add-speaker"
+                                        onClick={addSpeaker}
                                         disabled={isProcessing}
                                     >
-                                        ✕
+                                        + 추가
                                     </button>
-                                )}
-                            </div>
-                        ))}
+                                </div>
+                                {settings.speakers.map((name, idx) => (
+                                    <div key={idx} className="speaker-row">
+                                        <span className="speaker-num">{idx + 1}</span>
+                                        <input
+                                            type="text"
+                                            value={name}
+                                            onChange={(e) => updateSpeaker(idx, e.target.value)}
+                                            disabled={isProcessing}
+                                        />
+                                        {settings.speakers.length > 1 && (
+                                            <button
+                                                className="btn-remove-speaker"
+                                                onClick={() => removeSpeaker(idx)}
+                                                disabled={isProcessing}
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </>
+                        )}
+
+                        {settings.diarizeMode === 'auto' && (
+                            <p className="diarize-hint">Gemini가 대화 패턴을 분석하여 화자를 자동으로 구분합니다</p>
+                        )}
                     </div>
                 )}
 

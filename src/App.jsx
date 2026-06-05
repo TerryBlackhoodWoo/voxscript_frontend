@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Sidebar from './components/Sidebar'
 import ScriptView from './components/ScriptView'
 import SettingsPanel from './components/SettingsPanel'
@@ -13,17 +13,19 @@ function App() {
   const [progress, setProgress] = useState(0)
   const [progressMsg, setProgressMsg] = useState('')
   const [logs, setLogs] = useState([])
+  const [elapsedTime, setElapsedTime] = useState('')
+  const startTimeRef = useRef(null)  // ← useRef로 변경
 
   const [settings, setSettings] = useState({
     sourceUrl: '',
     lang: 'auto',
     format: 'all',
     diarize: false,
-    speakers: ['인터뷰어', '인터뷰이'],  // 리스트로 변경
+    diarizeMode: 'auto',
+    speakers: ['인터뷰어', '인터뷰이'],
     noSummary: false,
   })
 
-  // 완료된 작업 목록 polling
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -36,20 +38,34 @@ function App() {
           files: job.files || [],
           summary: job.summary || '',
         })))
-      } catch {
-        // FastAPI 꺼져있으면 무시
-      }
+      } catch { }
     }
     fetchJobs()
     const interval = setInterval(fetchJobs, 3000)
     return () => clearInterval(interval)
   }, [])
 
+  // 처리 중 경과시간 타이머
+  useEffect(() => {
+    if (!isProcessing) return
+    const timer = setInterval(() => {
+      if (!startTimeRef.current) return
+      const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+      const m = Math.floor(elapsed / 60)
+      const s = elapsed % 60
+      setElapsedTime(`${m}m ${s}s`)
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [isProcessing])
+
   const handleStart = async () => {
-    if (!settings.sourceUrl.trim() || isProcessing) return  // 중복 방지
+    if (!settings.sourceUrl.trim() || isProcessing) return
     setIsProcessing(true)
     setProgress(5)
     setProgressMsg('처리 시작 중...')
+    setElapsedTime('')
+    setLogs([])
+    startTimeRef.current = Date.now()  // ← ref에 저장
 
     try {
       const res = await fetch(`${API_BASE}/process`, {
@@ -61,7 +77,7 @@ function App() {
           formats: [settings.format],
           use_summary: !settings.noSummary,
           diarize: settings.diarize,
-          speakers: settings.diarize ? settings.speakers : [],
+          speakers: settings.diarize && settings.diarizeMode === 'manual' ? settings.speakers : [],
         }),
       })
       const job = await res.json()
@@ -81,6 +97,13 @@ function App() {
             setIsProcessing(false)
             setProgress(100)
             setProgressMsg('완료!')
+            // ref로 정확한 소요시간 계산
+            if (startTimeRef.current) {
+              const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+              const m = Math.floor(elapsed / 60)
+              const s = elapsed % 60
+              setElapsedTime(`${m}m ${s}s`)
+            }
           } else if (status.status === 'error') {
             clearInterval(pollInterval)
             setIsProcessing(false)
@@ -102,6 +125,8 @@ function App() {
     setIsProcessing(false)
     setProgress(0)
     setProgressMsg('')
+    setElapsedTime('')
+    startTimeRef.current = null
   }
 
   return (
@@ -117,6 +142,7 @@ function App() {
         progress={progress}
         progressMsg={progressMsg}
         logs={logs}
+        elapsedTime={elapsedTime}
       />
       <SettingsPanel
         settings={settings}

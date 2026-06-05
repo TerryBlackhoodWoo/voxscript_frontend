@@ -1,16 +1,19 @@
-function ProgressBar({ progress, message }) {
+function ProgressBar({ progress, message, elapsed }) {
     return (
         <div className="progress-wrap">
             <div className="progress-bar">
                 <div className="progress-fill" style={{ width: `${progress}%` }} />
             </div>
-            <span className="progress-msg">{message}</span>
+            <div className="progress-bottom">
+                <span className="progress-msg">{message}</span>
+                {elapsed && <span className="progress-elapsed">⏱ {elapsed}</span>}
+            </div>
         </div>
     )
 }
 
-function ScriptView({ project, isProcessing, progress, progressMsg, logs }) {
-    if (!project && !isProcessing) {
+function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapsedTime }) {
+    if (!project && !isProcessing && !logs?.length) {
         return (
             <main className="script-view empty">
                 <div className="empty-state">
@@ -24,16 +27,21 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs }) {
     return (
         <main className="script-view">
             {isProcessing && (
-                <>
-                    <ProgressBar progress={progress} message={progressMsg} />
-                    {logs?.length > 0 && (
-                        <div className="log-box">
-                            {logs.map((line, i) => (
-                                <div key={i} className="log-line">{line}</div>
-                            ))}
+                <ProgressBar progress={progress} message={progressMsg} elapsed={elapsedTime} />
+            )}
+
+            {!isProcessing && elapsedTime && (
+                <div className="elapsed-done">✅ 완료 — 총 소요시간: {elapsedTime}</div>
+            )}
+
+            {logs?.length > 0 && (
+                <div className="log-box">
+                    {logs.map((line, i) => (
+                        <div key={i} className={`log-line ${line.startsWith('✅') ? 'log-done' : line.startsWith('❌') ? 'log-error' : ''}`}>
+                            {line}
                         </div>
-                    )}
-                </>
+                    ))}
+                </div>
             )}
 
             {project && (
@@ -43,7 +51,6 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs }) {
                         <span className="script-meta">{project.date}</span>
                     </div>
 
-                    {/* 저장된 파일 목록 */}
                     {project.files?.length > 0 && (
                         <div className="file-list">
                             {project.files.map((f, i) => (
@@ -52,7 +59,6 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs }) {
                         </div>
                     )}
 
-                    {/* 요약 */}
                     {project.summary && (
                         <div className="summary-box">
                             <div className="summary-label">Gemini 요약</div>

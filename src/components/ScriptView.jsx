@@ -47,8 +47,14 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapse
             {project && (
                 <>
                     <div className="script-header">
-                        <h2 className="script-title">{project.title}</h2>
-                        <span className="script-meta">{project.date}</span>
+                        <h2 className="script-title">
+                            {project.original_name?.replace(/_/g, ' ') || project.title}
+                        </h2>
+                        <span className="script-meta">
+                            {project.updated_at
+                                ? new Date(project.updated_at * 1000).toLocaleDateString('ko-KR')
+                                : project.date}
+                        </span>
                     </div>
 
                     {project.files?.length > 0 && (
@@ -63,6 +69,15 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapse
                         <div className="summary-box">
                             <div className="summary-label">Gemini 요약</div>
                             <div className="summary-content">{project.summary}</div>
+                        </div>
+                    )}
+
+                    {!project.summary && project.stage === 'done' && (
+                        <div className="summary-box">
+                            <div className="summary-label">요약 없음</div>
+                            <div className="summary-content" style={{ color: 'var(--text-muted)' }}>
+                                요약 생략 옵션이 켜져 있었거나 요약 생성에 실패했습니다.
+                            </div>
                         </div>
                     )}
                 </>

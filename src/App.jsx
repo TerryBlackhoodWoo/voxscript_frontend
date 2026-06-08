@@ -145,7 +145,7 @@ function App() {
   }
 
   // 라벨링 완료 → resume
-  const handleLabelingSubmit = async (labeledSegments, speakers) => {
+  const handleLabelingSubmit = async (labeledSegments, speakers, editedRows) => {
     if (!activeProject) return
     setIsProcessing(true)
     startPolling(activeProject.project_id)
@@ -156,7 +156,17 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           labeled_segments: labeledSegments,
-          speakers: speakers,  // ← 유저 지정 화자 이름 전송
+          speakers: speakers,
+          // 유저가 편집/분리/병합한 세그먼트 전체 전달 (텍스트 수정 반영)
+          edited_segments: editedRows
+            ? editedRows.map(r => ({
+              index: r.index,
+              start: r.start,
+              end: r.end,
+              text: r.text,
+              speaker: r.speaker || null,
+            }))
+            : null,
         }),
       })
     } catch (e) {

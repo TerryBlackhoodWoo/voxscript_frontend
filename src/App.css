@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 
 *,
 *::before,
@@ -9,6 +9,7 @@
 }
 
 :root {
+  /* 메인 배경 — 크림 계열 유지 */
   --bg-base: #fffaf5;
   --bg-panel: #fff3e6;
   --bg-hover: #ffe8cc;
@@ -21,7 +22,20 @@
   --speaker-a: #f97316;
   --speaker-b: #16a34a;
   --danger: #e05252;
-  --font-ui: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-ui: 'Inter', 'Noto Sans KR', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* 설정 패널 전용 — 더 진하고 세련된 다크 네이비 */
+  --sp-bg: #0e1117;
+  --sp-bg-input: #1c2033;
+  --sp-bg-hover: #242840;
+  --sp-border: rgba(255, 255, 255, 0.08);
+  --sp-border-input: rgba(255, 255, 255, 0.12);
+  --sp-text: #e8ddd0;
+  --sp-text-muted: rgba(232, 221, 208, 0.45);
+  --sp-text-label: rgba(232, 221, 208, 0.55);
+  --sp-accent: #f59e0b;
+  --sp-accent-on: rgba(245, 158, 11, 0.15);
 }
 
 body {
@@ -29,11 +43,9 @@ body {
   color: var(--text-primary);
   font-family: var(--font-ui);
   font-size: 13px;
-  line-height: 1.6;
   height: 100vh;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── 레이아웃 ── */
@@ -57,20 +69,19 @@ body {
   align-items: baseline;
   gap: 6px;
   padding: 18px 16px 12px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .logo {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.04em;
   color: #fff;
 }
 
 .version {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .sidebar-section {
@@ -81,11 +92,10 @@ body {
 
 .section-label {
   display: block;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.6);
   padding: 0 16px 8px;
 }
 
@@ -111,21 +121,20 @@ body {
 
 .project-title {
   display: block;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .project-meta {
   display: block;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 3px;
-  line-height: 1.4;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 2px;
 }
 
 /* ── 스크립트 뷰 ── */
@@ -146,18 +155,15 @@ body {
 }
 
 .empty-title {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 14px;
   color: var(--text-muted);
-  margin-bottom: 6px;
-  line-height: 1.4;
+  margin-bottom: 4px;
 }
 
 .empty-sub {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
-  opacity: 0.7;
-  line-height: 1.5;
+  opacity: 0.6;
 }
 
 .progress-wrap {
@@ -181,9 +187,8 @@ body {
 }
 
 .progress-msg {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.5;
 }
 
 .progress-bottom {
@@ -215,22 +220,22 @@ body {
 }
 
 .script-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   padding: 16px 20px 12px;
   border-bottom: 1px solid var(--border);
 }
 
 .script-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  margin-bottom: 4px;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
+  margin-bottom: 3px;
 }
 
 .script-meta {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.5;
 }
 
 .script-table {
@@ -241,11 +246,11 @@ body {
 .script-row {
   display: grid;
   grid-template-columns: 110px 80px 1fr 1fr;
-  gap: 14px;
-  padding: 10px 20px;
+  gap: 12px;
+  padding: 8px 20px;
   border-bottom: 1px solid var(--border);
   align-items: start;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .script-row:hover {
@@ -256,9 +261,8 @@ body {
   position: sticky;
   top: 0;
   background: var(--bg-panel);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
@@ -268,24 +272,22 @@ body {
 
 .col-time {
   color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
 }
 
 .col-speaker {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .col-original {
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .col-translated {
   color: var(--text-primary);
-  line-height: 1.6;
-  font-weight: 400;
+  line-height: 1.5;
 }
 
 .speaker-a {
@@ -296,26 +298,26 @@ body {
   color: var(--speaker-b);
 }
 
-/* ── 설정 패널 ── */
+/* ── 설정 패널 — 다크 네이비 리스킨 ── */
 .settings-panel {
-  background: var(--bg-panel);
-  border-left: 1px solid var(--border);
+  background: var(--sp-bg);
+  border-left: 1px solid var(--sp-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .settings-header {
-  padding: 18px 16px 12px;
-  border-bottom: 1px solid var(--border);
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--sp-border);
 }
 
 .settings-title {
   font-size: 11px;
-  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--sp-text-muted);
+  font-weight: 500;
 }
 
 .settings-body {
@@ -330,46 +332,48 @@ body {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .field label {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--sp-text-label);
+  font-weight: 500;
 }
 
 .field input,
 .field select {
-  background: #fff8f0;
-  border: 1px solid #e0c090;
+  background: var(--sp-bg-input);
+  border: 1px solid var(--sp-border-input);
   border-radius: 5px;
-  color: #2a1f0a;
+  color: var(--sp-text);
   font-family: var(--font-ui);
-  font-size: 13px;
-  padding: 8px 12px;
+  font-size: 12px;
+  padding: 8px 10px;
   outline: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.15s;
+}
+
+.field input::placeholder {
+  color: var(--sp-text-muted);
 }
 
 .field input:focus,
 .field select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  border-color: var(--sp-accent);
 }
 
 .field input:disabled,
 .field select:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .field select option {
-  background: var(--bg-base);
-  color: var(--text-primary);
+  background: #1c2033;
+  color: var(--sp-text);
 }
 
 .source-input-row {
@@ -382,28 +386,23 @@ body {
 }
 
 .btn-file-select {
-  background: var(--bg-base);
-  border: 1px solid var(--border);
+  background: var(--sp-bg-input);
+  border: 1px solid var(--sp-border-input);
   border-radius: 5px;
   cursor: pointer;
-  font-size: 15px;
-  padding: 0 10px;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  padding: 0 8px;
+  transition: border-color 0.15s;
+  color: var(--sp-text);
 }
 
 .btn-file-select:hover {
-  border-color: var(--accent);
-  background: var(--bg-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  border-color: var(--sp-accent);
 }
 
 .btn-file-select:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 .toggle-field {
@@ -413,31 +412,31 @@ body {
 }
 
 .toggle {
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   padding: 5px 14px;
   transition: all 0.15s;
+  border: 1px solid transparent;
 }
 
 .toggle.off {
-  background: var(--bg-base);
-  color: var(--text-muted);
+  background: var(--sp-bg-input);
+  border-color: var(--sp-border-input);
+  color: var(--sp-text-muted);
 }
 
 .toggle.on {
-  background: var(--accent-dim);
-  border-color: var(--accent);
-  color: var(--accent);
-  font-weight: 600;
+  background: var(--sp-accent-on);
+  border-color: var(--sp-accent);
+  color: var(--sp-accent);
 }
 
 .toggle:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
@@ -446,9 +445,9 @@ body {
   flex-direction: column;
   gap: 8px;
   padding: 10px;
-  background: #fff8f0;
-  border: 1px solid #e0c090;
-  border-radius: 4px;
+  background: var(--sp-bg-input);
+  border: 1px solid var(--sp-border-input);
+  border-radius: 5px;
 }
 
 .speaker-fields-header {
@@ -465,10 +464,10 @@ body {
 
 .mode-btn {
   flex: 1;
-  background: #fff8f0;
-  border: 1px solid #e0c090;
+  background: transparent;
+  border: 1px solid var(--sp-border-input);
   border-radius: 4px;
-  color: #c49060;
+  color: var(--sp-text-muted);
   cursor: pointer;
   font-family: var(--font-ui);
   font-size: 11px;
@@ -477,19 +476,19 @@ body {
 }
 
 .mode-btn.active {
-  background: var(--accent-dim);
-  border-color: var(--accent);
-  color: var(--accent);
+  background: var(--sp-accent-on);
+  border-color: var(--sp-accent);
+  color: var(--sp-accent);
 }
 
 .mode-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .diarize-hint {
   font-size: 10px;
-  color: var(--text-muted);
+  color: var(--sp-text-muted);
   line-height: 1.5;
   margin-top: 4px;
 }
@@ -498,14 +497,14 @@ body {
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--sp-text-muted);
 }
 
 .btn-add-speaker {
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid var(--sp-border-input);
   border-radius: 3px;
-  color: var(--accent);
+  color: var(--sp-accent);
   cursor: pointer;
   font-family: var(--font-ui);
   font-size: 10px;
@@ -513,11 +512,11 @@ body {
 }
 
 .btn-add-speaker:hover {
-  border-color: var(--accent);
+  border-color: var(--sp-accent);
 }
 
 .btn-add-speaker:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
@@ -529,17 +528,17 @@ body {
 
 .speaker-num {
   font-size: 10px;
-  color: var(--text-muted);
+  color: var(--sp-text-muted);
   width: 14px;
   text-align: center;
 }
 
 .speaker-row input {
   flex: 1;
-  background: #fff8f0;
-  border: 1px solid #e0c090;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--sp-border-input);
   border-radius: 4px;
-  color: #2a1f0a;
+  color: var(--sp-text);
   font-family: var(--font-ui);
   font-size: 12px;
   padding: 5px 8px;
@@ -547,13 +546,13 @@ body {
 }
 
 .speaker-row input:focus {
-  border-color: var(--accent);
+  border-color: var(--sp-accent);
 }
 
 .btn-remove-speaker {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--sp-text-muted);
   cursor: pointer;
   font-size: 11px;
   padding: 2px 4px;
@@ -564,17 +563,25 @@ body {
 }
 
 .btn-remove-speaker:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 /* 파일 목록 */
 .file-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   padding: 12px 20px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-list-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
 }
 
 .file-chip {
@@ -594,17 +601,16 @@ body {
 }
 
 .summary-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .summary-content {
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.7;
   white-space: pre-wrap;
 }
@@ -631,7 +637,7 @@ body {
 
 .settings-footer {
   padding: 14px 16px;
-  border-top: 1px solid #e8c48a;
+  border-top: 1px solid var(--sp-border);
 }
 
 .btn-start,
@@ -643,39 +649,40 @@ body {
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   padding: 11px;
-  transition: all 0.2s ease;
+  transition: opacity 0.15s, transform 0.1s;
 }
 
 .btn-start {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.3);
 }
 
 .btn-start:disabled {
-  opacity: 0.4;
+  opacity: 0.25;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 .btn-start:not(:disabled):hover {
-  background: #ea8d00;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+  opacity: 0.88;
+}
+
+.btn-start:not(:disabled):active {
+  transform: scale(0.98);
 }
 
 .btn-stop {
   background: var(--danger);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(224, 82, 82, 0.3);
 }
 
 .btn-stop:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(224, 82, 82, 0.4);
+  opacity: 0.88;
+}
+
+.btn-stop:active {
+  transform: scale(0.98);
 }
 
 /* 스크롤바 */
@@ -690,6 +697,11 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 2px;
+}
+
+/* 설정 패널 스크롤바 */
+.settings-body::-webkit-scrollbar-thumb {
+  background: var(--sp-border-input);
 }
 
 /* ── 사이드바 프로젝트 단계 ── */
@@ -718,7 +730,7 @@ body {
 }
 
 .stage-running {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* ── 라벨링 뷰 ── */
@@ -739,17 +751,15 @@ body {
 }
 
 .labeling-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
 }
 
 .labeling-sub {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .labeling-actions {
@@ -761,40 +771,33 @@ body {
 .btn-skip {
   background: var(--bg-base);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
   font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 8px 16px;
-  transition: all 0.2s ease;
+  font-size: 12px;
+  padding: 7px 14px;
 }
 
 .btn-submit {
   background: var(--accent);
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   color: #fff;
   cursor: pointer;
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 8px 18px;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.3);
+  padding: 7px 14px;
 }
 
 .btn-skip:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: var(--bg-hover);
 }
 
 .btn-submit:hover {
-  background: #ea8d00;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+  opacity: 0.85;
 }
 
 /* 화자 목록 바 */
@@ -814,12 +817,10 @@ body {
 }
 
 .speaker-tag {
-  font-size: 12px;
-  padding: 4px 12px;
-  border-radius: 14px;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
   font-weight: 600;
-  transition: all 0.2s ease;
-  cursor: default;
 }
 
 .speaker-add-inline {
@@ -851,39 +852,33 @@ body {
 
 /* 화자 색상 */
 .speaker-color-0 {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #93c5fd;
+  background: #1a3a6a;
+  color: #5b9cf6;
 }
 
 .speaker-color-1 {
-  background: #dcfce7;
-  color: #15803d;
-  border: 1px solid #86efac;
+  background: #0d4a2a;
+  color: #4ade80;
 }
 
 .speaker-color-2 {
-  background: #fef3c7;
-  color: #a16207;
-  border: 1px solid #fde047;
+  background: #4a3a00;
+  color: #fbbf24;
 }
 
 .speaker-color-3 {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fca5a5;
+  background: #4a1a1a;
+  color: #f87171;
 }
 
 .speaker-color-4 {
-  background: #f3e8ff;
-  color: #7c3aed;
-  border: 1px solid #d8b4fe;
+  background: #2a1a4a;
+  color: #c084fc;
 }
 
 .speaker-color-5 {
-  background: #cffafe;
-  color: #0e7490;
-  border: 1px solid #67e8f9;
+  background: #1a3a3a;
+  color: #22d3ee;
 }
 
 /* 라벨링 테이블 */
@@ -987,15 +982,13 @@ body {
 }
 
 .save-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
 }
 
 .save-sub {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -1098,20 +1091,93 @@ body {
 }
 
 .save-done-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
 }
 
 .save-done-sub {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
-  line-height: 1.5;
 }
 
 .save-done-content .btn-start {
   width: auto;
   padding: 10px 32px;
   margin-top: 8px;
+}
+
+/* ── 빈 화면 아이콘 ── */
+.empty-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+/* ── 스크립트 헤더 개선 ── */
+.script-lang {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.btn-open-folder {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-open-folder:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── 파일 목록 개선 ── */
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.file-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.btn-file-open {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.btn-file-open:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }

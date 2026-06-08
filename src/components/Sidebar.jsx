@@ -1,4 +1,6 @@
-function Sidebar({ projects, selectedProject, onSelect }) {
+const APP_VERSION = 'v0.4'  // ← 버전 여기서 수정
+
+function Sidebar({ projects, selectedProject, onSelect, onHome }) {
     const stageLabel = (stage) => {
         const map = {
             init: '초기화',
@@ -25,9 +27,9 @@ function Sidebar({ projects, selectedProject, onSelect }) {
 
     return (
         <aside className="sidebar">
-            <div className="sidebar-header">
+            <div className="sidebar-header" onClick={onHome} style={{ cursor: 'pointer' }}>
                 <h1 className="logo">VOXScript</h1>
-                <span className="version">v0.4</span>
+                <span className="version">{APP_VERSION}</span>
             </div>
             <div className="sidebar-section">
                 <span className="section-label">프로젝트</span>

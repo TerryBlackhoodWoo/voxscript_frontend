@@ -43,7 +43,8 @@ function App() {
       try {
         const res = await fetch(`${API_BASE}/projects`)
         const data = await res.json()
-        setProjects(data)
+        // 완료 or 오류 프로젝트만 사이드바에 표시
+        setProjects(data.filter(p => p.is_done || p.has_error))
       } catch { }
     }
     fetchProjects()
@@ -153,7 +154,10 @@ function App() {
       await fetch(`${API_BASE}/resume/${activeProject.project_id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ labeled_segments: labeledSegments }),
+        body: JSON.stringify({
+          labeled_segments: labeledSegments,
+          speakers: speakers,  // ← 유저 지정 화자 이름 전송
+        }),
       })
     } catch (e) {
       setIsProcessing(false)
@@ -184,12 +188,12 @@ function App() {
     }
   }
 
-  // 프로젝트 이어하기
+  // 프로젝트 선택/이어하기
   const handleProjectSelect = async (project) => {
-    setSelectedProject(project)
     try {
       const res = await fetch(`${API_BASE}/load/${project.project_id}`)
       const data = await res.json()
+      setSelectedProject(data)  // 완전한 데이터로 설정
       setActiveProject(data)
       setLogs(data.log || [])
 
@@ -213,32 +217,36 @@ function App() {
 
   // 현재 표시할 중앙 컨텐츠 결정
   const renderCenter = () => {
-    if (activeProject?.stage === STAGE_LABELING) {
-      return (
-        <LabelingView
-          project={activeProject}
-          onSubmit={handleLabelingSubmit}
-          onSkip={handleLabelingSkip}
-        />
-      )
+    // 처리 중일 때만 단계별 화면 전환
+    if (isProcessing || activeProject?.stage === STAGE_LABELING || activeProject?.stage === STAGE_SAVING) {
+      if (activeProject?.stage === STAGE_LABELING) {
+        return (
+          <LabelingView
+            project={activeProject}
+            onSubmit={handleLabelingSubmit}
+            onSkip={handleLabelingSkip}
+          />
+        )
+      }
+      if (activeProject?.stage === STAGE_SAVING) {
+        return (
+          <SavePanel
+            project={activeProject}
+            onSave={handleSave}
+            onHome={() => {
+              setActiveProject(null)
+              setSelectedProject(null)
+              setLogs([])
+              setElapsedTime('')
+            }}
+          />
+        )
+      }
     }
-    if (activeProject?.stage === STAGE_SAVING) {
-      return (
-        <SavePanel
-          project={activeProject}
-          onSave={handleSave}
-          onHome={() => {
-            setActiveProject(null)
-            setSelectedProject(null)
-            setLogs([])
-            setElapsedTime('')
-          }}
-        />
-      )
-    }
+    // 완료/선택된 프로젝트 → 요약 뷰
     return (
       <ScriptView
-        project={selectedProject}
+        project={activeProject || selectedProject}
         isProcessing={isProcessing}
         progress={progress}
         progressMsg={progressMsg}
@@ -254,6 +262,12 @@ function App() {
         projects={projects}
         selectedProject={selectedProject}
         onSelect={handleProjectSelect}
+        onHome={() => {
+          setActiveProject(null)
+          setSelectedProject(null)
+          setLogs([])
+          setElapsedTime('')
+        }}
       />
       {renderCenter()}
       <SettingsPanel

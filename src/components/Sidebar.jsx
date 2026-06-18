@@ -1,4 +1,6 @@
-const APP_VERSION = 'v0.4'  // ← 버전 여기서 수정
+import logo from '../assets/VOXScriptLogo.png'
+
+const APP_VERSION = 'v1.2'  // ← 버전 여기서 수정
 
 function Sidebar({ projects, selectedProject, onSelect, onHome }) {
     const stageLabel = (stage) => {
@@ -28,7 +30,7 @@ function Sidebar({ projects, selectedProject, onSelect, onHome }) {
     return (
         <aside className="sidebar">
             <div className="sidebar-header" onClick={onHome} style={{ cursor: 'pointer' }}>
-                <h1 className="logo">VOXScript</h1>
+                <img src={logo} className="logo-img" alt="VOXScript" />
                 <span className="version">{APP_VERSION}</span>
             </div>
             <div className="sidebar-section">

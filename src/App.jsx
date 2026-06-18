@@ -43,8 +43,13 @@ function App() {
       try {
         const res = await fetch(`${API_BASE}/projects`)
         const data = await res.json()
-        // 완료 or 오류 프로젝트만 사이드바에 표시
-        setProjects(data.filter(p => p.is_done || p.has_error))
+        // 완료/오류 + 라벨링·저장 대기(유저 입력 기다리는 진짜 일시정지)까지 표시
+        // (다운로드/STT/전처리 중처럼 처리 스레드 없이는 의미 없는 단계는 계속 숨김)
+        setProjects(
+          data.filter(
+            p => p.is_done || p.has_error || p.stage === 'labeling' || p.stage === 'saving'
+          )
+        )
       } catch { }
     }
     fetchProjects()

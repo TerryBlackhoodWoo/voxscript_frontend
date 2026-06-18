@@ -12,6 +12,16 @@ function ProgressBar({ progress, message, elapsed }) {
     )
 }
 
+// Gemini 요약에 들어있는 **굵게** 마크다운만 가볍게 렌더링 (별도 라이브러리 없이)
+function renderMarkdownBold(text) {
+    if (!text) return text
+    return text.split(/(\*\*.+?\*\*)/g).map((part, i) =>
+        part.startsWith('**') && part.endsWith('**')
+            ? <strong key={i}>{part.slice(2, -2)}</strong>
+            : part
+    )
+}
+
 function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapsedTime }) {
 
     const handleOpenFile = (filename) => {
@@ -115,7 +125,7 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapse
                     {project.summary && (
                         <div className="summary-box">
                             <div className="summary-label">Gemini 요약</div>
-                            <div className="summary-content">{project.summary}</div>
+                            <div className="summary-content">{renderMarkdownBold(project.summary)}</div>
                         </div>
                     )}
 

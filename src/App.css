@@ -54,6 +54,7 @@ body {
   display: grid;
   grid-template-columns: 220px 1fr 280px;
   height: 100vh;
+  text-align: left;
 }
 
 /* ── 사이드바 ── */
@@ -233,6 +234,7 @@ body {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 3px;
+  color: var(--text-primary);
 }
 
 .script-meta {
@@ -615,6 +617,7 @@ body {
   font-size: 12px;
   line-height: 1.7;
   white-space: pre-wrap;
+  text-align: left;
 }
 
 /* 로그 박스 */
@@ -756,6 +759,7 @@ body {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
+  color: var(--text-primary);
 }
 
 .labeling-sub {
@@ -1154,6 +1158,7 @@ body {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 4px;
+  color: var(--text-primary);
 }
 
 .save-sub {
@@ -1262,6 +1267,7 @@ body {
 .save-done-title {
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .save-done-sub {
@@ -1326,7 +1332,7 @@ body {
 .file-name {
   flex: 1;
   font-size: 11px;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

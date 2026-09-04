@@ -1,8 +1,8 @@
 import logo from '../assets/VOXScriptLogo.png'
 
-const APP_VERSION = 'v1.2'  // ← 버전 여기서 수정
+const APP_VERSION = 'v1.5'  // ← 버전 여기서 수정
 
-function Sidebar({ projects, selectedProject, onSelect, onHome }) {
+function Sidebar({ projects, selectedProject, onSelect, onHome, onLogout, isAdmin, onOpenAdmin }) {
     const stageLabel = (stage) => {
         const map = {
             init: '초기화',
@@ -57,6 +57,16 @@ function Sidebar({ projects, selectedProject, onSelect, onHome }) {
                         </li>
                     ))}
                 </ul>
+            </div>
+            <div className="sidebar-footer">
+                {isAdmin && (
+                    <button className="admin-btn" onClick={onOpenAdmin}>
+                        관리자 페이지
+                    </button>
+                )}
+                <button className="logout-btn" onClick={onLogout}>
+                    로그아웃
+                </button>
             </div>
         </aside>
     )

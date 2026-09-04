@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
+import AdminView from './components/AdminView'
 import Sidebar from './components/Sidebar'
 import ScriptView from './components/ScriptView'
 import SettingsPanel from './components/SettingsPanel'
 import LabelingView from './components/LabelingView'
 import SavePanel from './components/SavePanel'
+import LoginView from './components/LoginView'
 import './App.css'
 
-const API_BASE = 'http://localhost:8765'
+export const API_BASE = 'http://localhost:8765'
 
 // 단계 구분
 const STAGE_PROCESSING = ['downloading', 'transcribing', 'cleaning', 'diarizing', 'translating']
@@ -27,6 +29,12 @@ function App() {
   const startTimeRef = useRef(null)
   const pollRef = useRef(null)
 
+  // 인증
+  const [token, setToken] = useState(null)
+  const [authChecked, setAuthChecked] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [showAdmin, setShowAdmin] = useState(false)
+
   const [settings, setSettings] = useState({
     sourceUrl: '',
     lang: 'auto',
@@ -36,6 +44,18 @@ function App() {
     speakers: ['인터뷰어', '인터뷰이'],
     noSummary: false,
   })
+
+  // 저장된 토큰 불러오기 (앱 시작 시 1회)
+  useEffect(() => {
+    const loadSavedToken = async () => {
+      try {
+        const saved = await window.voxscript?.loadToken?.()
+        if (saved) setToken(saved)
+      } catch { }
+      setAuthChecked(true)
+    }
+    loadSavedToken()
+  }, [])
 
   // 프로젝트 목록 polling
   useEffect(() => {
@@ -118,6 +138,25 @@ function App() {
     }, 1000)
   }
 
+  // 로그아웃 (토큰 만료/수동 로그아웃 공용)
+  const handleLogout = async () => {
+    await window.voxscript?.clearToken?.()
+    if (pollRef.current) clearInterval(pollRef.current)
+    setToken(null)
+    setActiveProject(null)
+    setSelectedProject(null)
+    setProjects([])
+    setIsProcessing(false)
+  }
+  // 관리자 권한 확인
+  useEffect(() => {
+    if (!token) return
+    fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => (res.ok ? res.json() : null))
+      .then(data => setIsAdmin(!!data?.is_admin))
+      .catch(() => setIsAdmin(false))
+  }, [token])
+
   // 처리 시작
   const handleStart = async () => {
     if (!settings.sourceUrl.trim() || isProcessing) return
@@ -132,7 +171,7 @@ function App() {
     try {
       const res = await fetch(`${API_BASE}/start`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           source: settings.sourceUrl,
           lang: settings.lang,
@@ -140,7 +179,21 @@ function App() {
           use_summary: !settings.noSummary,
         }),
       })
+
+      if (res.status === 401) {
+        setIsProcessing(false)
+        handleLogout()
+        return
+      }
+
       const project = await res.json()
+
+      if (!res.ok) {
+        setIsProcessing(false)
+        alert(`오류: ${project.detail || '처리를 시작할 수 없습니다.'}`)
+        return
+      }
+
       setActiveProject(project)
       startPolling(project.project_id)
     } catch (e) {
@@ -158,7 +211,7 @@ function App() {
     try {
       await fetch(`${API_BASE}/resume/${activeProject.project_id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           labeled_segments: labeledSegments,
           speakers: speakers,
@@ -194,7 +247,7 @@ function App() {
     try {
       await fetch(`${API_BASE}/save/${activeProject.project_id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ export_dir: exportDir, formats }),
       })
     } catch (e) {
@@ -271,6 +324,21 @@ function App() {
     )
   }
 
+  // 토큰 확인 전에는 아무것도 그리지 않음 (로그인 화면이 잠깐 깜빡이는 것 방지)
+  if (!authChecked) {
+    return <div className="app-loading" />
+  }
+
+  // 토큰 없으면 로그인 화면이 첫 화면
+  if (!token) {
+    return <LoginView onLoginSuccess={setToken} />
+  }
+
+  // 관리자 권한이면 관리자 페이지 접근 버튼 표시
+  if (showAdmin) {
+    return <AdminView token={token} onBack={() => setShowAdmin(false)} />
+  }
+
   return (
     <div className="app-layout">
       <Sidebar
@@ -283,6 +351,9 @@ function App() {
           setLogs([])
           setElapsedTime('')
         }}
+        onLogout={handleLogout}
+        isAdmin={isAdmin}
+        onOpenAdmin={() => setShowAdmin(true)}
       />
       {renderCenter()}
       <SettingsPanel

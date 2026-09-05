@@ -50,7 +50,7 @@ function SavePanel({ project, onSave, onHome }) {
                 <h2 className="save-title">저장 설정</h2>
                 <p className="save-sub">
                     저장 위치와 포맷을 선택하세요.<br />
-                    기본 저장 경로: ~/Downloads/VOXScript/projects/{project?.original_name}/
+                    기본 저장 경로: %APPDATA%\VOXScript\projects\{project?.original_name}\
                 </p>
             </div>
 

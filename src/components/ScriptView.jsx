@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 function ProgressBar({ progress, message, elapsed }) {
     return (
         <div className="progress-wrap">
@@ -8,6 +10,27 @@ function ProgressBar({ progress, message, elapsed }) {
                 <span className="progress-msg">{message}</span>
                 {elapsed && <span className="progress-elapsed">⏱ {elapsed}</span>}
             </div>
+        </div>
+    )
+}
+
+// 접었다 펼 수 있는 섹션 (로그/파일목록/요약 공용)
+function CollapsibleSection({ title, badge, defaultOpen = true, children }) {
+    const [open, setOpen] = useState(defaultOpen)
+    return (
+        <div className="collapsible-section">
+            <button
+                type="button"
+                className="collapsible-header"
+                onClick={() => setOpen(o => !o)}
+            >
+                <span className="collapsible-title">
+                    {title}
+                    {badge != null && <span className="collapsible-badge">{badge}</span>}
+                </span>
+                <span className={`collapsible-chevron ${open ? 'open' : ''}`}>▾</span>
+            </button>
+            {open && <div className="collapsible-body">{children}</div>}
         </div>
     )
 }
@@ -25,11 +48,9 @@ function renderMarkdownBold(text) {
 function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapsedTime }) {
 
     const handleOpenFile = (filename) => {
-        // Electron IPC로 파일 열기
         if (window.voxscript?.openFile) {
             window.voxscript.openFile(filename)
         } else {
-            // 폴백: 클립보드에 경로 복사
             navigator.clipboard?.writeText(filename)
             alert(`경로가 복사되었습니다:\n${filename}`)
         }
@@ -64,13 +85,22 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapse
             )}
 
             {logs?.length > 0 && (
-                <div className="log-box">
-                    {logs.map((line, i) => (
-                        <div key={i} className={`log-line ${line.startsWith('✅') ? 'log-done' : line.startsWith('❌') ? 'log-error' : ''}`}>
-                            {line}
-                        </div>
-                    ))}
-                </div>
+                <CollapsibleSection
+                    title="진행 상황"
+                    badge={logs.length}
+                    defaultOpen={isProcessing}
+                >
+                    <div className="log-box">
+                        {logs.map((line, i) => (
+                            <div
+                                key={i}
+                                className={`log-line ${line.startsWith('✅') ? 'log-done' : line.startsWith('❌') ? 'log-error' : ''}`}
+                            >
+                                {line}
+                            </div>
+                        ))}
+                    </div>
+                </CollapsibleSection>
             )}
 
             {project && (
@@ -103,39 +133,42 @@ function ScriptView({ project, isProcessing, progress, progressMsg, logs, elapse
 
                     {/* 파일 목록 */}
                     {project.files?.length > 0 && (
-                        <div className="file-list">
-                            <div className="file-list-label">저장된 파일</div>
-                            {project.files.map((f, i) => (
-                                <div key={i} className="file-item">
-                                    <span className="file-icon">{getFileIcon(f)}</span>
-                                    <span className="file-name">{f}</span>
-                                    <button
-                                        className="btn-file-open"
-                                        onClick={() => handleOpenFile(f)}
-                                        title="파일 열기"
-                                    >
-                                        열기
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                        <CollapsibleSection
+                            title="저장된 파일"
+                            badge={project.files.length}
+                            defaultOpen={false}
+                        >
+                            <div className="file-list">
+                                {project.files.map((f, i) => (
+                                    <div key={i} className="file-item">
+                                        <span className="file-icon">{getFileIcon(f)}</span>
+                                        <span className="file-name">{f}</span>
+                                        <button
+                                            className="btn-file-open"
+                                            onClick={() => handleOpenFile(f)}
+                                            title="파일 열기"
+                                        >
+                                            열기
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </CollapsibleSection>
                     )}
 
                     {/* 요약 */}
                     {project.summary && (
-                        <div className="summary-box">
-                            <div className="summary-label">Gemini 요약</div>
+                        <CollapsibleSection title="Gemini 요약" defaultOpen={true}>
                             <div className="summary-content">{renderMarkdownBold(project.summary)}</div>
-                        </div>
+                        </CollapsibleSection>
                     )}
 
                     {!project.summary && project.stage === 'done' && (
-                        <div className="summary-box">
-                            <div className="summary-label">요약 없음</div>
+                        <CollapsibleSection title="요약 없음" defaultOpen={true}>
                             <div className="summary-content" style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
                                 요약 생략 옵션이 켜져 있었거나 요약 생성에 실패했습니다.
                             </div>
-                        </div>
+                        </CollapsibleSection>
                     )}
                 </>
             )}

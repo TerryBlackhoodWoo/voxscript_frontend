@@ -26,7 +26,7 @@
   --font-ui: 'Inter', 'Noto Sans KR', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* 설정 패널 전용 — 더 진하고 세련된 다크 네이비 */
+  /* 설정 패널 전용 */
   --sp-bg: #fef4e8;
   --sp-bg-input: #ffffff;
   --sp-bg-hover: #ffe8cc;
@@ -107,10 +107,41 @@ body {
 }
 
 .project-item {
+  position: relative;
   padding: 8px 16px;
   cursor: pointer;
   border-left: 2px solid transparent;
   transition: background 0.15s, border-color 0.15s;
+}
+
+/* project-item 안의 제목 줄을 감싸는 새 wrapper */
+.project-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.project-delete-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.project-item:hover .project-delete-btn {
+  opacity: 1;
+}
+
+.project-delete-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 .project-item:hover {
@@ -140,10 +171,58 @@ body {
   margin-top: 2px;
 }
 
+.empty-projects {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 8px 16px;
+}
+
+.project-stage {
+  display: block;
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+.stage-done {
+  color: #0c5c2a;
+}
+
+.stage-error {
+  color: #8a1410;
+}
+
+.stage-waiting {
+  color: #6b3d00;
+}
+
+.stage-running {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 .sidebar-footer {
   margin-top: auto;
   padding: 12px 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: #2a1f0a;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.admin-btn:hover {
+  opacity: 0.88;
 }
 
 .logout-btn {
@@ -177,6 +256,12 @@ body {
 
 .empty-state {
   text-align: center;
+}
+
+.empty-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.4;
 }
 
 .empty-title {
@@ -236,6 +321,25 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
+.log-box {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--bg-base);
+}
+
+.log-line {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-family: var(--font-ui);
+}
+
+.log-line:last-child {
+  color: var(--text-primary);
+}
+
 .log-done {
   color: var(--speaker-b) !important;
 }
@@ -262,6 +366,30 @@ body {
 .script-meta {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.script-lang {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.btn-open-folder {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-open-folder:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .script-table {
@@ -324,7 +452,134 @@ body {
   color: var(--speaker-b);
 }
 
-/* ── 설정 패널 — 다크 네이비 리스킨 ── */
+/* ── 파일 목록 ── */
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.file-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-primary) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.btn-file-open {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.btn-file-open:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 요약 (레거시 wrapper, summary-content는 여전히 사용) */
+.summary-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.summary-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.summary-content {
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+/* ── 접었다 펼치는 섹션 (로그/파일목록/요약 공용) ── */
+.collapsible-section {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.collapsible-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-hover, rgba(0, 0, 0, 0.02));
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+}
+
+.collapsible-header:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.collapsible-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-text);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.collapsible-badge {
+  background: var(--accent-dim, rgba(245, 158, 11, 0.15));
+  color: var(--accent-text);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+
+.collapsible-chevron {
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.15s;
+}
+
+.collapsible-chevron.open {
+  transform: rotate(180deg);
+}
+
+.collapsible-body {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── 설정 패널 ── */
 .settings-panel {
   background: var(--sp-bg);
   border-left: 1px solid var(--sp-border);
@@ -466,202 +721,6 @@ body {
   cursor: not-allowed;
 }
 
-.speaker-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  background: var(--sp-bg-input);
-  border: 1px solid var(--sp-border-input);
-  border-radius: 5px;
-}
-
-.speaker-fields-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.diarize-mode {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.mode-btn {
-  flex: 1;
-  background: transparent;
-  border: 1px solid var(--sp-border-input);
-  border-radius: 4px;
-  color: var(--sp-text-muted);
-  cursor: pointer;
-  font-family: var(--font-ui);
-  font-size: 11px;
-  padding: 5px 8px;
-  transition: all 0.15s;
-}
-
-.mode-btn.active {
-  background: var(--sp-accent-on);
-  border-color: var(--sp-accent);
-  color: var(--accent-text);
-}
-
-.mode-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.diarize-hint {
-  font-size: 10px;
-  color: var(--sp-text-muted);
-  line-height: 1.5;
-  margin-top: 4px;
-}
-
-.speaker-label {
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--sp-text-muted);
-}
-
-.btn-add-speaker {
-  background: transparent;
-  border: 1px solid var(--sp-border-input);
-  border-radius: 3px;
-  color: var(--accent-text);
-  cursor: pointer;
-  font-family: var(--font-ui);
-  font-size: 10px;
-  padding: 3px 8px;
-}
-
-.btn-add-speaker:hover {
-  border-color: var(--sp-accent);
-}
-
-.btn-add-speaker:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.speaker-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.speaker-num {
-  font-size: 10px;
-  color: var(--sp-text-muted);
-  width: 14px;
-  text-align: center;
-}
-
-.speaker-row input {
-  flex: 1;
-  background: #fff;
-  border: 1px solid var(--sp-border-input);
-  border-radius: 4px;
-  color: var(--sp-text);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  padding: 5px 8px;
-  outline: none;
-}
-
-.speaker-row input:focus {
-  border-color: var(--sp-accent);
-}
-
-.btn-remove-speaker {
-  background: transparent;
-  border: none;
-  color: var(--sp-text-muted);
-  cursor: pointer;
-  font-size: 11px;
-  padding: 2px 4px;
-}
-
-.btn-remove-speaker:hover {
-  color: var(--danger);
-}
-
-.btn-remove-speaker:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-/* 파일 목록 */
-.file-list {
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.file-list-label {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.file-chip {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--text-muted);
-  font-size: 10px;
-  padding: 3px 8px;
-}
-
-/* 요약 */
-.summary-box {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px;
-}
-
-.summary-label {
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-
-.summary-content {
-  color: var(--text-primary);
-  font-size: 12px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  text-align: left;
-}
-
-/* 로그 박스 */
-.log-box {
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--border);
-  max-height: 200px;
-  overflow-y: auto;
-  background: var(--bg-base);
-}
-
-.log-line {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.6;
-  font-family: var(--font-ui);
-}
-
-.log-line:last-child {
-  color: var(--text-primary);
-}
-
 .settings-footer {
   padding: 14px 16px;
   border-top: 1px solid var(--sp-border);
@@ -710,54 +769,6 @@ body {
 
 .btn-stop:active {
   transform: scale(0.98);
-}
-
-/* 스크롤바 */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 2px;
-}
-
-/* 설정 패널 스크롤바 */
-.settings-body::-webkit-scrollbar-thumb {
-  background: var(--sp-border-input);
-}
-
-/* ── 사이드바 프로젝트 단계 ── */
-.empty-projects {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.75);
-  padding: 8px 16px;
-}
-
-.project-stage {
-  display: block;
-  font-size: 10px;
-  margin-top: 2px;
-}
-
-.stage-done {
-  color: #0c5c2a;
-}
-
-.stage-error {
-  color: #8a1410;
-}
-
-.stage-waiting {
-  color: #6b3d00;
-}
-
-.stage-running {
-  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ── 라벨링 뷰 ── */
@@ -828,7 +839,6 @@ body {
   opacity: 0.85;
 }
 
-/* 화자 목록 바 */
 .speaker-list-bar {
   display: flex;
   align-items: center;
@@ -878,7 +888,6 @@ body {
   padding: 2px 8px;
 }
 
-/* 화자 색상 */
 .speaker-color-0 {
   background: #1a3a6a;
   color: #5b9cf6;
@@ -909,7 +918,6 @@ body {
   color: #22d3ee;
 }
 
-/* 라벨링 테이블 */
 .labeling-table {
   flex: 1;
   overflow-y: auto;
@@ -996,8 +1004,6 @@ body {
 }
 
 /* ── 라벨링 v2: 편집 가능 세그먼트 행 ── */
-
-/* 편집 힌트 바 */
 .edit-hint {
   padding: 6px 20px;
   background: #fff8ed;
@@ -1008,7 +1014,6 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* 헤더 열 */
 .col-speaker-header,
 .col-text-header,
 .col-actions-header {
@@ -1018,7 +1023,6 @@ body {
   color: var(--text-muted);
 }
 
-/* 세그먼트 행 */
 .seg-row {
   display: grid;
   grid-template-columns: 140px 1fr 100px;
@@ -1028,7 +1032,6 @@ body {
   align-items: start;
   cursor: pointer;
   transition: background 0.12s;
-  /* 화자 색상 CSS 변수 (JS에서 주입) */
   --speaker-color: var(--text-muted);
 }
 
@@ -1040,7 +1043,6 @@ body {
   background: #fff3e0;
   border-left: 3px solid var(--speaker-color, var(--accent));
   padding-left: 17px;
-  /* border 3px 보정 */
 }
 
 .seg-row.editing {
@@ -1050,7 +1052,6 @@ body {
   cursor: default;
 }
 
-/* 화자 + 시간 컬럼 */
 .seg-speaker {
   display: flex;
   flex-direction: column;
@@ -1071,7 +1072,6 @@ body {
   outline: none;
   cursor: pointer;
   width: 100%;
-  /* 드롭다운 화살표 커스텀 */
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a6a3a'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 6px center;
@@ -1089,7 +1089,6 @@ body {
   padding-left: 2px;
 }
 
-/* 텍스트 컬럼 */
 .seg-text-col {
   padding-top: 2px;
 }
@@ -1118,7 +1117,6 @@ body {
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
-/* 액션 컬럼 */
 .seg-actions {
   display: flex;
   flex-direction: column;
@@ -1155,7 +1153,6 @@ body {
   color: #5BAD6F;
 }
 
-/* 라벨링 테이블 헤더 row — 기존 header-row 재활용하되 컬럼 맞춤 */
 .labeling-table .header-row {
   grid-template-columns: 140px 1fr 100px;
   display: grid;
@@ -1199,6 +1196,40 @@ body {
 .save-footer {
   padding: 16px 20px;
   border-top: 1px solid var(--border);
+}
+
+.save-panel-done {
+  align-items: center;
+  justify-content: center;
+}
+
+.save-done-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.save-done-icon {
+  font-size: 48px;
+}
+
+.save-done-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.save-done-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.save-done-content .btn-start {
+  width: auto;
+  padding: 10px 32px;
+  margin-top: 8px;
 }
 
 /* ── 화자 이름 편집 ── */
@@ -1266,117 +1297,6 @@ body {
 
 .speaker-remove-btn:hover {
   color: var(--danger);
-}
-
-/* ── 저장 완료 ── */
-.save-panel-done {
-  align-items: center;
-  justify-content: center;
-}
-
-.save-done-content {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.save-done-icon {
-  font-size: 48px;
-}
-
-.save-done-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.save-done-sub {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.save-done-content .btn-start {
-  width: auto;
-  padding: 10px 32px;
-  margin-top: 8px;
-}
-
-/* ── 빈 화면 아이콘 ── */
-.empty-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-  opacity: 0.4;
-}
-
-/* ── 스크립트 헤더 개선 ── */
-.script-lang {
-  color: var(--accent-text);
-  font-weight: 600;
-}
-
-.btn-open-folder {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-family: var(--font-ui);
-  font-size: 11px;
-  padding: 5px 10px;
-  white-space: nowrap;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.btn-open-folder:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* ── 파일 목록 개선 ── */
-.file-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-}
-
-.file-icon {
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.file-name {
-  flex: 1;
-  font-size: 11px;
-  color: var(--text-primary) !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-mono);
-}
-
-.btn-file-open {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-family: var(--font-ui);
-  font-size: 10px;
-  padding: 2px 8px;
-  flex-shrink: 0;
-  transition: all 0.15s;
-}
-
-.btn-file-open:hover {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 /* ── 로그인 화면 ── */
@@ -1517,15 +1437,7 @@ body {
   text-decoration: underline;
 }
 
-.sidebar-footer {
-  margin-top: auto;
-  padding: 12px 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+/* ── 관리자 페이지 ── */
 .admin-view {
   position: fixed;
   inset: 0;
@@ -1740,4 +1652,32 @@ body {
   font-size: 12px;
   padding: 20px 0;
   text-align: center;
+}
+
+/* ── 스크롤바 ── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.settings-body::-webkit-scrollbar-thumb {
+  background: var(--sp-border-input);
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
 }

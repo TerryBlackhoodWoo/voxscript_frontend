@@ -148,12 +148,36 @@ function App() {
     setProjects([])
     setIsProcessing(false)
   }
+
+  const handleDeleteProject = async (projectId) => {
+    try {
+      const res = await fetch(`${API_BASE}/projects/${projectId}`, { method: 'DELETE' })
+      if (!res.ok) {
+        alert('삭제에 실패했습니다.')
+        return
+      }
+      setProjects((prev) => prev.filter((p) => p.project_id !== projectId))
+      if (selectedProject?.project_id === projectId) {
+        setSelectedProject(null)
+        setActiveProject(null)
+      }
+    } catch (e) {
+      alert(`삭제 실패: ${e.message}`)
+    }
+  }
+
   // 관리자 권한 확인
   useEffect(() => {
     if (!token) return
     fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => (res.ok ? res.json() : null))
-      .then(data => setIsAdmin(!!data?.is_admin))
+      .then(res => {
+        if (res.status === 401) {
+          handleLogout()
+          return null
+        }
+        return res.ok ? res.json() : null
+      })
+      .then(data => { if (data) setIsAdmin(!!data.is_admin) })
       .catch(() => setIsAdmin(false))
   }, [token])
 
@@ -354,6 +378,7 @@ function App() {
         onLogout={handleLogout}
         isAdmin={isAdmin}
         onOpenAdmin={() => setShowAdmin(true)}
+        onDelete={handleDeleteProject}
       />
       {renderCenter()}
       <SettingsPanel

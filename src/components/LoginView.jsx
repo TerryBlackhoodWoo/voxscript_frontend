@@ -1,12 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import logo from '../assets/VOXScriptLogo.png'
 import { API_BASE } from '../App'
+
+const SAVED_USERNAME_KEY = 'voxscript_saved_username'
 
 function LoginView({ onLoginSuccess }) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [rememberUsername, setRememberUsername] = useState(false)
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        const saved = localStorage.getItem(SAVED_USERNAME_KEY)
+        if (saved) {
+            setUsername(saved)
+            setRememberUsername(true)
+        }
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -25,6 +36,12 @@ function LoginView({ onLoginSuccess }) {
             if (!res.ok) {
                 setError(data.detail || '로그인에 실패했습니다.')
                 return
+            }
+
+            if (rememberUsername) {
+                localStorage.setItem(SAVED_USERNAME_KEY, username)
+            } else {
+                localStorage.removeItem(SAVED_USERNAME_KEY)
             }
 
             if (window.voxscript?.saveToken) {
@@ -64,6 +81,15 @@ function LoginView({ onLoginSuccess }) {
                             disabled={loading}
                         />
                     </div>
+                    <label className="login-remember">
+                        <input
+                            type="checkbox"
+                            checked={rememberUsername}
+                            onChange={(e) => setRememberUsername(e.target.checked)}
+                            disabled={loading}
+                        />
+                        아이디 저장
+                    </label>
                     {error && <p className="login-error">{error}</p>}
                     <button type="submit" className="btn-login" disabled={loading}>
                         {loading ? '로그인 중...' : '로그인'}
@@ -71,7 +97,7 @@ function LoginView({ onLoginSuccess }) {
                 </div>
             </form>
             <p className="login-hint">
-                계정이 필요하신가요? {' '}
+                계정이 필요하신가요? 🙂{' '}
                 <a href="mailto:leftdeadman@gmail.com">leftdeadman@gmail.com</a> 으로 연락 주세요
             </p>
         </div>

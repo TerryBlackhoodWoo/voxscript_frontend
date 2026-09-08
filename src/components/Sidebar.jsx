@@ -45,9 +45,18 @@ function Sidebar({ projects, selectedProject, onSelect, onHome, onLogout, isAdmi
                             className={`project-item ${selectedProject?.project_id === project.project_id ? 'active' : ''}`}
                             onClick={() => onSelect(project)}
                         >
-                            <span className="project-title">
-                                {project.original_name.replace(/_/g, ' ')}
-                            </span>
+                            <div className="project-item-header">
+                                <span className="project-title">
+                                    {project.original_name.replace(/_/g, ' ')}
+                                </span>
+                                <button
+                                    className="project-delete-btn"
+                                    onClick={(e) => handleDeleteClick(e, project)}
+                                    title="삭제"
+                                >
+                                    ✕
+                                </button>
+                            </div>
                             <span className={`project-stage ${stageColor(project.stage)}`}>
                                 {stageLabel(project.stage)}
                             </span>

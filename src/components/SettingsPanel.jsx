@@ -101,7 +101,7 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing, curr
                     <button
                         className="btn-start"
                         onClick={onStart}
-                        disabled={!settings.sourceUrl.trim()}
+                        disabled={!settings.sourceUrl.trim() || ['labeling', 'saving'].includes(currentStage)}
                     >
                         처리 시작
                     </button>

@@ -16,7 +16,7 @@ const FORMAT_OPTIONS = [
     { value: 'excel', label: 'Excel' },
 ]
 
-function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
+function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing, currentStage }) {
     const update = (key, value) => onChange({ ...settings, [key]: value })
 
     return (
@@ -34,8 +34,7 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing }) {
                             placeholder="YouTube URL / Google Drive 링크 / 로컬 경로"
                             value={settings.sourceUrl}
                             onChange={(e) => update('sourceUrl', e.target.value)}
-                            disabled={isProcessing}
-                        />
+                            disabled={isProcessing || ['labeling', 'saving'].includes(currentStage)} />
                         <button
                             className="btn-file-select"
                             onClick={async () => {

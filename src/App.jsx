@@ -43,6 +43,7 @@ function App() {
     diarizeMode: 'auto',
     speakers: ['인터뷰어', '인터뷰이'],
     noSummary: false,
+    translateEngine: 'deepl',
   })
 
   // 저장된 토큰 불러오기 (앱 시작 시 1회)
@@ -201,6 +202,7 @@ function App() {
           lang: settings.lang,
           format: settings.format,
           use_summary: !settings.noSummary,
+          use_gemini_translate: settings.translateEngine === 'gemini',
         }),
       })
 

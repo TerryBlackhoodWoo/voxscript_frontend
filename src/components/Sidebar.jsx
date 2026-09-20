@@ -1,6 +1,6 @@
 import logo from '../assets/VOXScriptLogo.png'
 
-const APP_VERSION = 'v1.7'  // ← 버전 여기서 수정
+const APP_VERSION = 'v1.8'  // ← 버전 여기서 수정
 
 function Sidebar({ projects, selectedProject, onSelect, onHome, onLogout, isAdmin, onOpenAdmin }) {
     const stageLabel = (stage) => {

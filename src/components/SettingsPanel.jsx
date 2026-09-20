@@ -1,3 +1,6 @@
+import deeplIcon from '../assets/deeplIcon.svg'
+import geminiIcon from '../assets/geminiIcon.png'
+
 const LANG_OPTIONS = [
     { value: 'auto', label: '자동 감지' },
     { value: 'ko', label: '한국어' },
@@ -91,6 +94,32 @@ function SettingsPanel({ settings, onChange, onStart, onStop, isProcessing, curr
                     >
                         {settings.noSummary ? 'ON' : 'OFF'}
                     </button>
+                </div>
+                <div className="field">
+                    <label>번역 엔진</label>
+                    <div className="engine-picker">
+                        <button
+                            className={`engine-option ${settings.translateEngine === 'deepl' ? 'active' : ''}`}
+                            onClick={() => update('translateEngine', 'deepl')}
+                            disabled={isProcessing}
+                        >
+                            <img src={deeplIcon} alt="DeepL" width="28" height="28" />
+                            <span>DeepL 번역</span>
+                            <span className="engine-dot" />
+                        </button>
+                        <button
+                            className={`engine-option ${settings.translateEngine === 'gemini' ? 'active' : ''}`}
+                            onClick={() => update('translateEngine', 'gemini')}
+                            disabled={isProcessing}
+                        >
+                            <img src={geminiIcon} alt="Gemini" width="28" height="28" />
+                            <span>Gemini 번역</span>
+                            <span className="engine-dot" />
+                        </button>
+                    </div>
+                    {settings.translateEngine === 'gemini' && (
+                        <p className="diarize-hint">캐주얼한 대사·감정 기복이 큰 소스에 적합 (느릴 수 있음)</p>
+                    )}
                 </div>
             </div>
 

@@ -1681,3 +1681,79 @@ body {
   cursor: pointer;
   user-select: none;
 }
+
+.engine-picker {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.engine-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.engine-option span:not(.engine-dot) {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.engine-option.active {
+  border-color: var(--brand);
+}
+
+.engine-option.active span:not(.engine-dot) {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.engine-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  position: relative;
+  transition: border-color 0.15s;
+}
+
+.engine-option.active .engine-dot {
+  border-color: var(--brand);
+}
+
+.engine-option.active .engine-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  transform: translate(-50%, -50%);
+}
+
+.engine-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.engine-option img {
+  opacity: 0.45;
+  filter: grayscale(70%);
+  transition: opacity 0.15s, filter 0.15s;
+}
+
+.engine-option.active img {
+  opacity: 1;
+  filter: none;
+}
